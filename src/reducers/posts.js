@@ -1,3 +1,4 @@
+import { CompareArrowsOutlined } from '@material-ui/icons';
 import { FETCH_ALL, FETCH_BY_SEARCH, FETCH_POST, START_LOADING, END_LOADING, CREATE, UPDATE, DELETE, LIKE, COMMENT } from '../constants/actionTypes';
 
 const postsReducer = (state = { isLoading: true, posts: [] }, action) => {
@@ -18,12 +19,12 @@ const postsReducer = (state = { isLoading: true, posts: [] }, action) => {
     case FETCH_POST:
       return {...state, post: action.payload};
     case LIKE:
-      return {...state, posts: state.posts.map((post) => (post._id === action.payload._id ? action.payload : post))};
+      return {...state, posts: state.posts.map((post) => (post.id === action.payload.id ? action.payload : post))};
     case COMMENT:
       return {
         ...state,
         posts: state.posts.map((post) => {
-          if (post._id === +action.payload._id) {
+          if (post.id === +action.payload.id) {
             return action.payload;
           }
           return post;
@@ -32,9 +33,9 @@ const postsReducer = (state = { isLoading: true, posts: [] }, action) => {
     case CREATE:
       return {...state, posts: [...state.posts, action.payload]};
     case UPDATE:
-      return {...state, posts: state.posts.map((post) => (post._id === action.payload._id ? action.payload : post))};
+      return {...state, posts: state.posts.map((post) => (post.id === action.payload.id ? action.payload : post))};
     case DELETE:
-      return {...state, posts: state.posts.filter((post) => post._id !== action.payload)};
+      return {...state, posts: state.posts.filter((post) => post.id !== action.payload)};
     default:
       return state;
   }

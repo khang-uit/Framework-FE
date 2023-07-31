@@ -19,22 +19,22 @@ const Post = ({ post, setCurrentId }) => {
     const history = useHistory();
     const [likes, setLikes] = useState(post?.likes);
 
-    const userId = (user?.result?.googleId || user?.result?._id);
-    const hasLikedPost = post.likes.find((like) => like === userId);
+    const userId = (user?.result?.googleId || user?.result?.id);
+    const hasLikedPost = post.likes.find((like) => like.userId === userId);
 
     const handleLike = async () => {
-        dispatch(likePost(post._id));
+        dispatch(likePost(post.id));
 
         if(hasLikedPost) {
-            setLikes(post.likes.filter((id) => id !== userId));
+            setLikes(post.likes.filter((like) => like.userId !== userId));
         } else {
-            setLikes([...post.likes, userId])
+            setLikes([...post.likes, {userId, postId: post.id}])
         }
     };
 
     const Likes = () => {
         if (likes.length > 0) {
-          return likes.find((like) => like === userId)
+          return likes.find((like) => like.userId === userId)
             ? (
               <><ThumbUpAltIcon fontSize="small" />&nbsp;{likes.length > 2 ? `You and ${likes.length - 1} others` : `${likes.length} like${likes.length > 1 ? 's' : ''}` }</>
             ) : (
@@ -46,7 +46,7 @@ const Post = ({ post, setCurrentId }) => {
     };
 
     const openPost = () => {
-        history.push(`/posts/${post._id}`);
+        history.push(`/posts/${post.id}`);
     }
 
     return (
@@ -58,16 +58,16 @@ const Post = ({ post, setCurrentId }) => {
                     <Typography variant="h6">{post.name}</Typography>
                     <Typography variant="body2">{moment(post.createdAt).fromNow()}</Typography>
                 </div>
-                {(user?.result?.googleId === post?.creator || user?.result?._id === post?.creator) && (
+                {(user?.result?.googleId === post?.creatorId || user?.result?.id === post?.creatorId) && (
                     <div className={classes.overlay2}>
-                        <Button style={{color: 'white'}} size="small" onClick={() => setCurrentId(post._id)}>
+                        <Button style={{color: 'white'}} size="small" onClick={() => setCurrentId(post.id)}>
                             <MoreHorizIcon fontSize="medium" />
                         </Button>
                     </div>
                 )}
-                <div className={classes.details}>
+                {/* <div className={classes.details}>
                     <Typography variant="body2" color="textSecondary">{post.tags.map((tag) => `#${tag} `)}</Typography>
-                </div>
+                </div> */}
                 <Typography className={classes.title} variant="h5" gutterBottom>{post.title}</Typography>
                 <CardContent>
                     <Typography variant="body2" color="textSecondary" component="p" gutterBottom>{post.message}</Typography>
@@ -79,8 +79,8 @@ const Post = ({ post, setCurrentId }) => {
                 <Button size="small" color="primary" disabled={!user?.result} onClick={handleLike}>
                     <Likes />
                 </Button>
-                {(user?.result?.googleId === post?.creator || user?.result?._id === post?.creator) && (
-                    <Button size="small" color="secondary" onClick={() => dispatch(deletePost(post._id))}>
+                {(user?.result?.googleId === post?.creatorId || user?.result?.id === post?.creatorId) && (
+                    <Button size="small" color="secondary" onClick={() => dispatch(deletePost(post.id))}>
                         <DeleteIcon fontSize="small" /> 
                         Delete
                     </Button>

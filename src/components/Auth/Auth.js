@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Avatar, Button, Paper, Grid, Typography, Container } from '@material-ui/core';
-import { GoogleLogin } from 'react-google-login';
+import { GoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-
+import jwt_decode from 'jwt-decode'
 import Icon from './icon';
 import LockOutlinedIcon from '@material-ui/icons/LockOpenOutlined';
 import useStyles from './styles';
@@ -25,7 +25,12 @@ const Auth = () => {
         e.preventDefault();
         
         if(isSignup) {
-            dispatch(signup(formData, history));
+            dispatch(signup({
+                name: formData.firstName + formData.lastName,
+                email: formData.email,
+                password: formData.password
+            }
+            , history));
         } else {
             dispatch(signin(formData, history));
         }
@@ -47,9 +52,10 @@ const Auth = () => {
     }
 
     const googleSuccess = async (res) => {
-        const result = res?.profileObj;
-
-        const token = res?.tokenId;
+        const decoded_res = jwt_decode(res.credential)
+        console.log(decoded_res)
+        const result = decoded_res;
+        const token = decoded_res?.tokenId;
 
         try {
             dispatch({type: 'AUTH', data: { result, token }});
@@ -88,8 +94,7 @@ const Auth = () => {
                     <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submit}>
                         {isSignup ? "Sign Up" : "Sign in"}
                     </Button>
-                    <GoogleLogin
-                        clientId="498872042974-igs1jdkduvsi1q111ir13le1tg0llsfv.apps.googleusercontent.com"
+                    <GoogleLogin                      
                         render={(renderProps) => (
                             <Button
                                 className={classes.googleButton}
@@ -103,7 +108,6 @@ const Auth = () => {
                         )}
                         onSuccess={googleSuccess}
                         onFailure={googleFailure}
-                        cookiePolicy="single_host_origin"
                     />
                     <Grid container justifyContent="flex-end">
                         <Grid item>
@@ -117,5 +121,6 @@ const Auth = () => {
         </Container>
     )
 }
+
 
 export default Auth;

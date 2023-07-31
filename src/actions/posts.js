@@ -5,8 +5,7 @@ export const getPost = (id) => async (dispatch) => {
     try {
         dispatch({ type: START_LOADING });
         const { data } = await api.fetchPost(id);
-
-        dispatch({ type: FETCH_POST, payload: data  });
+        dispatch({ type: FETCH_POST, payload: data.post  });
         dispatch({ type: END_LOADING });
     } catch (error) {
         console.log(error);
@@ -43,9 +42,9 @@ export const createPost = (post, history) => async (dispatch) => {
         dispatch({ type: START_LOADING });
         const { data } = await api.createPost(post);
 
-        history.push(`/posts/${data._id}`);
+        history.push(`/posts/${data.data.id}`);
 
-        dispatch({ type: CREATE, payload: data })
+        dispatch({ type: CREATE, payload: data.data })
     } catch (error) {
         console.log(error);
     }
@@ -77,7 +76,7 @@ export const likePost = (id) => async (dispatch) => {
     try {
       const { data } = await api.likePost(id, user?.token);
   
-      dispatch({ type: LIKE, payload: data });
+      dispatch({ type: LIKE, payload: data.post });
     } catch (error) {
       console.log(error);
     }
@@ -85,12 +84,39 @@ export const likePost = (id) => async (dispatch) => {
 
 export const commentPost = (value, id) => async (dispatch) => {
     try {
-        const { data } = await api.comment(value, id);
-
-        dispatch({ type: COMMENT, payload: data });
-
-        return data.comments;
+        const { data }  = await api.comment(value, id);
+        if(data.error === false){
+            dispatch({ type: COMMENT, payload: data.post });
+        }
+        return data;
     } catch (error) {
-        console.log(error);
+        return error.response.data;
+    }
+}
+
+export const report = (id, msg) => async(dispatch) => {
+    try {
+        const { data }  = await api.report(id, msg);
+        return data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
+
+export const getReports = () => async(dispatch) => {
+    try {
+        const { data }  = await api.getReports();
+        return data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
+
+export const getViews = () => async(dispatch) => {
+    try {
+        const { data }  = await api.getViews();
+        return data;
+    } catch (error) {
+        return error.response.data;
     }
 }
